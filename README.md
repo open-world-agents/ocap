@@ -12,7 +12,7 @@ https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 
 > **TL;DR**: Complete, high-performance desktop recording tool for Windows. Captures everything in one command.
 
-📊 **Working with recorded data?** See the [Data Guide](https://open-world-agents.github.io/open-world-agents/data/) for analysis, processing, and ML integration.
+📊 **Working with recorded data?** See the [OWAMcap Format Guide](https://open-world-agents.github.io/open-world-agents/data/technical-reference/format-guide) for analysis, processing, and ML integration.
 
 ## Key Features
 
@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 - **Efficient encoding**: [H265/HEVC](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) for high quality and small file size
 - **Simple operation**: `ocap FILE_LOCATION` (stop with Ctrl+C)
 - **Clean architecture**: Core logic in a single 400-line [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py)
-- **Modern formats**: MKV with embedded timestamps, [**OWAMcap format**](https://open-world-agents.github.io/open-world-agents/data/) for events (built on [MCAP](https://mcap.dev/))
+- **Modern formats**: MKV with embedded timestamps, [**OWAMcap format**](https://open-world-agents.github.io/open-world-agents/data/technical-reference/format-guide) for events (built on [MCAP](https://mcap.dev/))
 
 ## System Requirements
 
@@ -77,7 +77,7 @@ $ ocap FILENAME --no-record-audio     # Disable audio
 ```
 
 ### Output Files
-- `.mcap` — Event log (keyboard, mouse, windows) in [**OWAMcap format**](https://open-world-agents.github.io/open-world-agents/data/)
+- `.mcap` — Event log (keyboard, mouse, windows) in OWAMcap format
 - `.mkv`  — Video/audio with embedded timestamps
 
 Your recording files will be ready immediately!
@@ -86,7 +86,7 @@ Your recording files will be ready immediately!
 
 | **Feature**                              | **ocap**                 | [OBS](https://obsproject.com/) | [wcap](https://github.com/mmozeiko/wcap) | [pillow](https://github.com/python-pillow/Pillow)/[mss](https://github.com/BoboTiG/python-mss) |
 |------------------------------------------|--------------------------|--------------------------------|------------------------------------------|----------------------------------|
-| Advanced data formats ([OWAMcap](https://open-world-agents.github.io/open-world-agents/data/)/MKV) | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
+| Advanced data formats (OWAMcap) | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
 | Timestamp aligned logging                | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
 | Customizable event definition & Listener | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
 | Single python file                       | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
@@ -146,7 +146,7 @@ flowchart TD
 
 - **How much disk space do recordings use?** ~100MB per minute for 1080p H265 recording.
 - **Will ocap slow down my computer?** Minimal impact with hardware acceleration. Designed for low overhead.
-- **What is OWAMcap format?** A specialized format that stores screen video (.mkv) + synchronized events (.mcap) for AI training. Contains keyboard, mouse, window events with nanosecond precision. [Learn more →](https://open-world-agents.github.io/open-world-agents/data/)
+- **What is OWAMcap format?** A specialized format that stores screen video (.mkv) + synchronized events (.mcap) for AI training. Contains keyboard, mouse, window events with nanosecond precision. [Learn more →](https://open-world-agents.github.io/open-world-agents/data/technical-reference/format-guide)
 - **Can I save recording in other formats?** Yes sure, all the source code you must edit is single [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py). You can implement JSONL, Parquet, CSV, anything you want easily.
 
 ## When to Use ocap
@@ -154,4 +154,4 @@ flowchart TD
 - **AI Agent Training**: Capture desktop interactions for training multimodal models
 - **Workflow Documentation**: Record exact steps with precise timing
 - **Performance Testing**: Low-overhead recording during intensive tasks
-- **Research & Datasets**: Generate standardized [OWAMcap data](https://open-world-agents.github.io/open-world-agents/data/) for the community ([HuggingFace Hub](https://huggingface.co/datasets?other=OWA))
+- **Research & Datasets**: Generate standardized OWAMcap data for the community ([HuggingFace Hub](https://huggingface.co/datasets?other=OWA))
