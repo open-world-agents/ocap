@@ -12,6 +12,8 @@ https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 
 > **TL;DR**: Complete, high-performance desktop recording tool for Windows. Captures everything in one command.
 
+📊 **Working with recorded data?** See the [Data Guide](https://open-world-agents.github.io/open-world-agents/data/) for analysis, processing, and ML integration.
+
 ## Key Features
 
 - **Complete desktop recording**: Video, audio, keyboard/mouse events, window events
@@ -19,7 +21,7 @@ https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 - **Efficient encoding**: [H265/HEVC](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) for high quality and small file size
 - **Simple operation**: `ocap FILE_LOCATION` (stop with Ctrl+C)
 - **Clean architecture**: Core logic in [single 400-line Python file](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py)
-- **Modern formats**: MKV with embedded timestamps, [MCAP format](https://mcap.dev/) for events
+- **Modern formats**: MKV with embedded timestamps, [**OWAMcap format**](https://open-world-agents.github.io/open-world-agents/data/) for events (built on [MCAP](https://mcap.dev/))
 
 ## System Requirements
 
@@ -75,7 +77,7 @@ $ ocap FILENAME --no-record-audio     # Disable audio
 ```
 
 ### Output Files
-- `.mcap` — Event log (keyboard, mouse, windows)
+- `.mcap` — Event log (keyboard, mouse, windows) in [**OWAMcap format**](https://open-world-agents.github.io/open-world-agents/data/)
 - `.mkv`  — Video/audio with embedded timestamps
 
 Your recording files will be ready immediately!
@@ -84,7 +86,7 @@ Your recording files will be ready immediately!
 
 | **Feature**                              | **ocap**                 | [OBS](https://obsproject.com/) | [wcap](https://github.com/mmozeiko/wcap) | [pillow](https://github.com/python-pillow/Pillow)/[mss](https://github.com/BoboTiG/python-mss) |
 |------------------------------------------|--------------------------|--------------------------------|------------------------------------------|----------------------------------|
-| Advanced data formats (MCAP/MKV)     | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
+| Advanced data formats ([OWAMcap](https://open-world-agents.github.io/open-world-agents/data/)/MKV) | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
 | Timestamp aligned logging                | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
 | Customizable event definition & Listener | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
 | Single python file                       | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
@@ -143,13 +145,15 @@ flowchart TD
 ## FAQ
 
 - **How much disk space do recordings use?** ~100MB per minute for 1080p H265 recording.
-- **Can I customize recorded events?** Yes. Enable/disable audio, keyboard, mouse, and window events individually. Since [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py) is just a 320-line single python script, you may customize it easily.
 - **Will ocap slow down my computer?** Minimal impact with hardware acceleration. Designed for low overhead.
-- **What formats are supported?** MKV with H265/HEVC encoding for video and MCAP format for events for efficient storage and querying is supported, but you may customize it easily. (e.g. saving `jsonl` instead of `mcap` file takes minimal effort by editing [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py))
+- **What is OWAMcap format?** A specialized format that stores screen video (.mkv) + synchronized events (.mcap) for AI training. Contains keyboard, mouse, window events with nanosecond precision. [Learn more →](https://open-world-agents.github.io/open-world-agents/data/)
+- **How do I analyze recordings?** See the [Data Guide](https://open-world-agents.github.io/open-world-agents/data/) for analysis tools and examples.
+- **Can I customize what gets recorded?** Yes. Use flags like `--no-record-audio`, `--window-name "App"`, `--fps 30` to control recording behavior.
+- **How do I use recorded data for ML?** See the [Data Guide](https://open-world-agents.github.io/open-world-agents/data/) for processing pipelines and training examples.
 
 ## When to Use ocap
 
-- **Agent training**: Capture all inputs and outputs for AI training
-- **Workflow documentation**: Record exact steps with precise timing
-- **Performance testing**: Low-overhead recording during intensive tasks
-- **Complete screen recording**: When you need more than just video
+- **AI Agent Training**: Capture desktop interactions for training multimodal models
+- **Workflow Documentation**: Record exact steps with precise timing
+- **Performance Testing**: Low-overhead recording during intensive tasks
+- **Research & Datasets**: Generate standardized [OWAMcap data](https://open-world-agents.github.io/open-world-agents/data/) for the community ([HuggingFace Hub](https://huggingface.co/datasets?other=OWA))
