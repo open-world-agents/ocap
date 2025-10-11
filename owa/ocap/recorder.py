@@ -13,6 +13,9 @@ from typing_extensions import Annotated
 from mcap_owa.highlevel import OWAMcapWriter
 from owa.core import CALLABLES, LISTENERS, get_plugin_discovery
 from owa.core.time import TimeUnits
+from owa.msgs.desktop.screen import MediaRef
+
+from .utils import check_for_update
 
 logger.remove()
 # how to use loguru with tqdm: https://github.com/Delgan/loguru/issues/135
@@ -95,8 +98,6 @@ def keyboard_monitor_callback(event):
 def screen_capture_callback(event):
     global MCAP_LOCATION
     # Update the media_ref with a new relative path
-    from owa.msgs.desktop.screen import MediaRef
-
     relative_path = Path(event.media_ref.uri).relative_to(MCAP_LOCATION.parent).as_posix()
     event.media_ref = MediaRef(uri=relative_path, pts_ns=event.media_ref.pts_ns)
     enqueue_event(event, topic="screen")
@@ -353,8 +354,6 @@ def record(
 def main():
     # Check for updates on startup (skip in CI environments)
     if not os.getenv("GITHUB_ACTIONS"):
-        from owa.cli.utils import check_for_update
-
         check_for_update("ocap", silent=False)
     typer.run(record)
 

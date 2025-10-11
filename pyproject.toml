@@ -6,9 +6,14 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 dependencies = [
-    "owa-cli==0.6.1",
+    "loguru>=0.7.3",
+    "mcap-owa-support==0.6.1",
+    "owa-core==0.6.1",
     "owa-env-desktop==0.6.1",
     "owa-env-gst==0.6.1",
+    "owa-msgs==0.6.1",
+    "tqdm>=4.67.1",
+    "typer>=0.19.2",
 ]
 
 [build-system]
