@@ -15,110 +15,87 @@ from owa.core import CALLABLES, LISTENERS, get_plugin_discovery
 from owa.core.time import TimeUnits
 from owa.msgs.desktop.screen import MediaRef
 
-from .utils import check_for_update
+from .utils import check_for_update, countdown_delay, parse_additional_properties
 
-logger.remove()
-# how to use loguru with tqdm: https://github.com/Delgan/loguru/issues/135
-logger.add(lambda msg: tqdm.write(msg, end=""), filter={"owa.ocap": "DEBUG", "owa.env.gst": "INFO"}, colorize=True)
-
-event_queue = Queue()
-MCAP_LOCATION = None
+# ============================================================================
+# RECORDING CONTEXT
+# ============================================================================
 
 
-def _collect_environment_metadata() -> dict:
-    """Collect environment metadata that applies to the entire session."""
-    metadata = {}
-    metadata["pointer_ballistics_config"] = CALLABLES["desktop/mouse.get_pointer_ballistics_config"]().model_dump(
-        by_alias=True
-    )
-    metadata["keyboard_repeat_timing"] = CALLABLES["desktop/keyboard.get_keyboard_repeat_timing"](return_seconds=False)
-    return metadata
+class RecordingContext:
+    """Manages recording state and event processing."""
+
+    def __init__(self, mcap_location: Path):
+        self.event_queue = Queue()
+        self.mcap_location = mcap_location
+
+    def enqueue_event(self, event, *, topic):
+        self.event_queue.put((topic, event, time.time_ns()))
+
+
+# ============================================================================
+# UTILITY FUNCTIONS
+# ============================================================================
+
+
+def check_plugin():
+    """Verify that required plugins are available."""
+    plugin_discovery = get_plugin_discovery()
+    success, failed = plugin_discovery.get_plugin_info(["desktop", "gst"])
+    assert len(success) == 2, f"Failed to load plugins: {failed}"
+
+
+def check_resources_health(resources):
+    """Check if all resources are healthy. Returns list of unhealthy resource names."""
+    return [name for resource, name in resources if not resource.is_alive()]
+
+
+def ensure_output_files_ready(file_location: Path):
+    """Ensure output directory exists and handle existing files."""
+    output_file = file_location.with_suffix(".mcap")
+    if not output_file.parent.exists():
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        logger.warning(f"Created directory {output_file.parent}")
+    if output_file.exists() or output_file.with_suffix(".mkv").exists():
+        delete = typer.confirm("The output file already exists. Do you want to delete it?")
+        if not delete:
+            print("The recording is aborted.")
+            raise typer.Abort()
+        output_file.unlink(missing_ok=True)
+        output_file.with_suffix(".mkv").unlink(missing_ok=True)
+        logger.warning(f"Deleted existing file {output_file}")
+    return output_file
+
+
+# ============================================================================
+# METADATA HANDLING
+# ============================================================================
 
 
 def _record_environment_metadata(writer: OWAMcapWriter) -> None:
     """Record environment configuration as MCAP metadata."""
     try:
-        metadata = _collect_environment_metadata()
+        metadata = {
+            "pointer_ballistics_config": CALLABLES["desktop/mouse.get_pointer_ballistics_config"]().model_dump(
+                by_alias=True
+            ),
+            "keyboard_repeat_timing": CALLABLES["desktop/keyboard.get_keyboard_repeat_timing"](return_seconds=False),
+        }
         for name, data in metadata.items():
             data = {str(key): str(value) for key, value in data.items()}  # mcap writer requires str keys and values
             writer.write_metadata(name, data)
     except Exception as e:
         logger.warning(f"Failed to record environment metadata: {e}")
 
-    # TODO: Add more environment metadata here:
-    # - System information (OS version, hardware specs)
-    # - Display configuration (resolution, DPI, multiple monitors)
-    # - Audio configuration (devices, sample rates)
-    # - Input device configuration (keyboard layout, mouse settings)
-    # - Game/application specific settings
 
-
-def check_resources_health(resources):
-    """Check if all resources are healthy. Returns list of unhealthy resource names."""
-    unhealthy = []
-    for resource, name in resources:
-        if not resource.is_alive():
-            unhealthy.append(name)
-    return unhealthy
-
-
-def countdown_delay(seconds: float):
-    """Display a countdown before starting recording."""
-    if seconds <= 0:
-        return
-
-    logger.info(f"⏱️ Recording will start in {seconds} seconds...")
-
-    # Show countdown for delays >= 3 seconds
-    if seconds >= 3:
-        for i in range(int(seconds), 0, -1):
-            logger.info(f"Starting in {i}...")
-            time.sleep(1)
-        # Handle fractional part
-        remaining = seconds - int(seconds)
-        if remaining > 0:
-            time.sleep(remaining)
-    else:
-        time.sleep(seconds)
-
-    logger.info("🎬 Recording started!")
-
-
-def enqueue_event(event, *, topic):
-    event_queue.put((topic, event, time.time_ns()))
-
-
-def keyboard_monitor_callback(event):
-    # info only for F1-F12 keys
-    if 0x70 <= event.vk <= 0x7B and event.event_type == "press":
-        logger.info(f"F1-F12 key pressed: F{event.vk - 0x70 + 1}")
-    enqueue_event(event, topic="keyboard")
-
-
-def screen_capture_callback(event):
-    global MCAP_LOCATION
-    # Update the media_ref with a new relative path
-    relative_path = Path(event.media_ref.uri).relative_to(MCAP_LOCATION.parent).as_posix()
-    event.media_ref = MediaRef(uri=relative_path, pts_ns=event.media_ref.pts_ns)
-    enqueue_event(event, topic="screen")
-
-
-def check_plugin():
-    plugin_discovery = get_plugin_discovery()
-    success, failed = plugin_discovery.get_plugin_info(["desktop", "gst"])
-    assert len(success) == 2, f"Failed to load plugins: {failed}"
-
-
-USER_INSTRUCTION = """
-Since this recorder records all screen/keyboard/mouse/window events, be aware NOT to record sensitive information, such as passwords, credit card numbers, etc.
-
-Press Ctrl+C to stop recording.
-"""
+# ============================================================================
+# RESOURCE MANAGEMENT
+# ============================================================================
 
 
 @contextmanager
 def setup_resources(
-    file_location: Path,
+    context: RecordingContext,
     record_audio: bool,
     record_video: bool,
     record_timestamp: bool,
@@ -130,26 +107,42 @@ def setup_resources(
     height: Optional[int],
     additional_properties: dict,
 ):
+    """Set up and manage all recording resources (listeners, recorder, etc.)."""
     check_plugin()
-    # Instantiate all listeners and recorder etc.
+
+    # Instantiate all listeners and recorder
     recorder = LISTENERS["gst/omnimodal.appsink_recorder"]()
-    keyboard_listener = LISTENERS["desktop/keyboard"]().configure(callback=keyboard_monitor_callback)
-    mouse_listener = LISTENERS["desktop/mouse"]().configure(callback=lambda event: enqueue_event(event, topic="mouse"))
+
+    def keyboard_callback(event):
+        if 0x70 <= event.vk <= 0x7B and event.event_type == "press":
+            logger.info(f"F1-F12 key pressed: F{event.vk - 0x70 + 1}")
+        context.enqueue_event(event, topic="keyboard")
+
+    def screen_callback(event):
+        relative_path = Path(event.media_ref.uri).relative_to(context.mcap_location.parent).as_posix()
+        event.media_ref = MediaRef(uri=relative_path, pts_ns=event.media_ref.pts_ns)
+        context.enqueue_event(event, topic="screen")
+
+    keyboard_listener = LISTENERS["desktop/keyboard"]().configure(callback=keyboard_callback)
+    mouse_listener = LISTENERS["desktop/mouse"]().configure(
+        callback=lambda event: context.enqueue_event(event, topic="mouse")
+    )
     window_listener = LISTENERS["desktop/window"]().configure(
-        callback=lambda event: enqueue_event(event, topic="window")
+        callback=lambda event: context.enqueue_event(event, topic="window")
     )
     keyboard_state_listener = LISTENERS["desktop/keyboard_state"]().configure(
-        callback=lambda event: enqueue_event(event, topic="keyboard/state")
+        callback=lambda event: context.enqueue_event(event, topic="keyboard/state")
     )
     mouse_state_listener = LISTENERS["desktop/mouse_state"]().configure(
-        callback=lambda event: enqueue_event(event, topic="mouse/state")
+        callback=lambda event: context.enqueue_event(event, topic="mouse/state")
     )
     raw_mouse_listener = LISTENERS["desktop/raw_mouse"]().configure(
-        callback=lambda event: enqueue_event(event, topic="mouse/raw")
+        callback=lambda event: context.enqueue_event(event, topic="mouse/raw")
     )
+
     # Configure recorder
     recorder.configure(
-        filesink_location=file_location.with_suffix(".mkv"),
+        filesink_location=context.mcap_location.with_suffix(".mkv"),
         record_audio=record_audio,
         record_video=record_video,
         record_timestamp=record_timestamp,
@@ -160,7 +153,7 @@ def setup_resources(
         width=width,
         height=height,
         additional_properties=additional_properties,
-        callback=screen_capture_callback,
+        callback=screen_callback,
     )
 
     resources = [
@@ -192,80 +185,13 @@ def setup_resources(
                 logger.error(f"Error stopping {name}: {e}")
 
 
-def parse_additional_properties(additional_args: Optional[str]) -> dict:
-    additional_properties = {}
-    if additional_args is not None:
-        for arg in additional_args.split(","):
-            key, value = arg.split("=")
-            additional_properties[key] = value
-    return additional_properties
+# ============================================================================
+# RECORDING HELPERS
+# ============================================================================
 
 
-def ensure_output_files_ready(file_location: Path):
-    output_file = file_location.with_suffix(".mcap")
-    if not output_file.parent.exists():
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        logger.warning(f"Created directory {output_file.parent}")
-    if output_file.exists() or output_file.with_suffix(".mkv").exists():
-        delete = typer.confirm("The output file already exists. Do you want to delete it?")
-        if not delete:
-            print("The recording is aborted.")
-            raise typer.Abort()
-        output_file.unlink(missing_ok=True)
-        output_file.with_suffix(".mkv").unlink(missing_ok=True)
-        logger.warning(f"Deleted existing file {output_file}")
-    return output_file
-
-
-def record(
-    file_location: Annotated[
-        Path,
-        typer.Argument(
-            help="The location of the output file. If `output.mcap` is given as argument, the output file would be `output.mcap` and `output.mkv`."
-        ),
-    ],
-    *,
-    record_audio: Annotated[bool, typer.Option(help="Whether to record audio")] = True,
-    record_video: Annotated[bool, typer.Option(help="Whether to record video")] = True,
-    record_timestamp: Annotated[bool, typer.Option(help="Whether to record timestamp")] = True,
-    show_cursor: Annotated[bool, typer.Option(help="Whether to show the cursor in the capture")] = True,
-    fps: Annotated[float, typer.Option(help="The frame rate of the video. Default is 60 fps.")] = 60.0,
-    window_name: Annotated[
-        Optional[str], typer.Option(help="The name of the window to capture, substring of window name is supported")
-    ] = None,
-    monitor_idx: Annotated[Optional[int], typer.Option(help="The index of the monitor to capture")] = None,
-    width: Annotated[
-        Optional[int],
-        typer.Option(help="The width of the video. If None, the width will be determined by the source."),
-    ] = None,
-    height: Annotated[
-        Optional[int],
-        typer.Option(help="The height of the video. If None, the height will be determined by the source."),
-    ] = None,
-    additional_args: Annotated[
-        Optional[str],
-        typer.Option(
-            help="Additional arguments to pass to the pipeline. For detail, see https://gstreamer.freedesktop.org/documentation/d3d11/d3d11screencapturesrc.html"
-        ),
-    ] = None,
-    start_after: Annotated[
-        Optional[float],
-        typer.Option(help="Delay recording start by this many seconds. Shows countdown during delay."),
-    ] = None,
-    stop_after: Annotated[
-        Optional[float],
-        typer.Option(help="Automatically stop recording after this many seconds from start."),
-    ] = None,
-    health_check_interval: Annotated[
-        float,
-        typer.Option(help="Interval in seconds for checking resource health. Set to 0 to disable."),
-    ] = 5.0,
-):
-    """Record screen, keyboard, mouse, and window events to an `.mcap` and `.mkv` file."""
-    global MCAP_LOCATION
-    output_file = ensure_output_files_ready(file_location)
-    MCAP_LOCATION = output_file
-
+def _display_warnings_and_instructions(window_name: Optional[str]) -> None:
+    """Display relevant warnings and user instructions."""
     if window_name is not None:
         logger.warning(
             "⚠️ WINDOW CAPTURE LIMITATION (as of 2025-03-20) ⚠️\n"
@@ -276,16 +202,128 @@ def record(
             "- Full screen mode in games works well if the video output matches your monitor resolution (e.g., 1920x1080)\n"
             "- Any non-fullscreen capture will have misaligned mouse coordinates in the recording"
         )
+    logger.info(
+        "Since this recorder records all screen/keyboard/mouse/window events, be aware NOT to record sensitive information, such as passwords, credit card numbers, etc.\n\nPress Ctrl+C to stop recording."
+    )
+
+
+def _run_recording_loop(
+    context: RecordingContext,
+    writer: OWAMcapWriter,
+    resources,
+    stop_after: Optional[float],
+    health_check_interval: float,
+) -> None:
+    """Run the main recording loop with health checks and auto-stop functionality."""
+    recording_start_time = time.time()
+    last_health_check = time.time()
+
+    if stop_after:
+        logger.info(f"⏰ Recording will automatically stop after {stop_after} seconds")
+
+    with tqdm(desc="Recording", unit="event", dynamic_ncols=True) as pbar:
+        try:
+            while True:
+                # Check if auto-stop time has been reached
+                if stop_after and (time.time() - recording_start_time) >= stop_after:
+                    logger.info("⏰ Auto-stop time reached - stopping recording...")
+                    break
+
+                # Periodic health check
+                if health_check_interval > 0 and (time.time() - last_health_check) >= health_check_interval:
+                    unhealthy = check_resources_health(resources)
+                    if unhealthy:
+                        logger.error(f"⚠️ HEALTH CHECK FAILED: Unhealthy resources: {', '.join(unhealthy)}")
+                        logger.error("🛑 Terminating recording due to unhealthy resources!")
+                        break
+                    last_health_check = time.time()
+
+                # Get event with timeout to allow periodic checks
+                try:
+                    topic, event, publish_time = context.event_queue.get(timeout=0.1)
+                except Empty:
+                    continue
+
+                # Process event
+                pbar.update()
+                latency = time.time_ns() - publish_time
+
+                # Warn if latency is too high (> 100ms)
+                if latency > 100 * TimeUnits.MSECOND:
+                    logger.warning(
+                        f"High latency: {latency / TimeUnits.MSECOND:.2f}ms while processing {topic} event."
+                    )
+
+                writer.write_message(event, topic=topic, timestamp=publish_time)
+
+                # Update progress bar with remaining time
+                if stop_after:
+                    elapsed = time.time() - recording_start_time
+                    remaining = max(0, stop_after - elapsed)
+                    pbar.set_description(f"Recording (remaining: {remaining:.1f}s)")
+
+        except KeyboardInterrupt:
+            logger.info("Recording stopped by user.")
+
+
+# ============================================================================
+# MAIN RECORDING FUNCTION
+# ============================================================================
+
+
+def record(
+    file_location: Annotated[
+        Path,
+        typer.Argument(
+            help="Output file location. If `output.mcap` is given as argument, the output file would be `output.mcap` and `output.mkv`."
+        ),
+    ],
+    *,
+    # Recording options
+    record_audio: Annotated[bool, typer.Option(help="Whether to record audio")] = True,
+    record_video: Annotated[bool, typer.Option(help="Whether to record video")] = True,
+    record_timestamp: Annotated[bool, typer.Option(help="Whether to record timestamp")] = True,
+    show_cursor: Annotated[bool, typer.Option(help="Whether to show the cursor in the capture")] = True,
+    fps: Annotated[float, typer.Option(help="Video frame rate. Default is 60 fps.")] = 60.0,
+    # Capture source options
+    window_name: Annotated[
+        Optional[str], typer.Option(help="Window name to capture. Supports substring matching.")
+    ] = None,
+    monitor_idx: Annotated[Optional[int], typer.Option(help="Monitor index to capture.")] = None,
+    # Video dimensions
+    width: Annotated[Optional[int], typer.Option(help="Video width. If None, determined by source.")] = None,
+    height: Annotated[Optional[int], typer.Option(help="Video height. If None, determined by source.")] = None,
+    # Advanced options
+    additional_args: Annotated[
+        Optional[str],
+        typer.Option(
+            help="Additional arguments to be passed to the GStreamer pipeline. For detail, see https://gstreamer.freedesktop.org/documentation/d3d11/d3d11screencapturesrc.html"
+        ),
+    ] = None,
+    # Timing options
+    start_after: Annotated[Optional[float], typer.Option(help="Delay start by specified seconds.")] = None,
+    stop_after: Annotated[Optional[float], typer.Option(help="Auto-stop after specified seconds from start.")] = None,
+    # Health monitoring
+    health_check_interval: Annotated[
+        float, typer.Option(help="Interval in seconds for checking resource health. Set to 0 to disable.")
+    ] = 5.0,
+):
+    """Record screen, keyboard, mouse, and window events to an `.mcap` and `.mkv` file."""
+    # Setup output files and recording context
+    output_file = ensure_output_files_ready(file_location)
+    context = RecordingContext(output_file)
     additional_properties = parse_additional_properties(additional_args)
 
-    logger.info(USER_INSTRUCTION)
+    # Display warnings and instructions
+    _display_warnings_and_instructions(window_name)
 
-    # Handle delayed start
+    # Handle delayed start if requested
     if start_after:
         countdown_delay(start_after)
 
+    # Start recording with all configured resources
     with setup_resources(
-        file_location=output_file,
+        context=context,
         record_audio=record_audio,
         record_video=record_video,
         record_timestamp=record_timestamp,
@@ -297,68 +335,40 @@ def record(
         height=height,
         additional_properties=additional_properties,
     ) as resources:
-        recording_start_time = time.time()
-        last_health_check = time.time()
-
-        if stop_after:
-            logger.info(f"⏰ Recording will automatically stop after {stop_after} seconds")
-
-        with OWAMcapWriter(output_file) as writer, tqdm(desc="Recording", unit="event", dynamic_ncols=True) as pbar:
+        with OWAMcapWriter(output_file) as writer:
             # Record environment metadata
             _record_environment_metadata(writer)
 
-            try:
-                while True:
-                    # Check if auto-stop time has been reached
-                    if stop_after and (time.time() - recording_start_time) >= stop_after:
-                        logger.info("⏰ Auto-stop time reached - stopping recording...")
-                        break
+            # Run the main recording loop
+            _run_recording_loop(context, writer, resources, stop_after, health_check_interval)
 
-                    # Periodic health check
-                    if health_check_interval > 0 and (time.time() - last_health_check) >= health_check_interval:
-                        unhealthy = check_resources_health(resources)
-                        if unhealthy:
-                            logger.error(f"⚠️ HEALTH CHECK FAILED: Unhealthy resources: {', '.join(unhealthy)}")
-                            logger.error("🛑 Terminating recording due to unhealthy resources!")
-                            break
-                        last_health_check = time.time()
+            # Resources are cleaned up by context managers
+            logger.info(f"Output file saved to {output_file}")
 
-                    # Get event with timeout to allow periodic checks
-                    try:
-                        topic, event, publish_time = event_queue.get(timeout=0.1)
-                    except Empty:
-                        continue
 
-                    pbar.update()
-                    latency = time.time_ns() - publish_time
-                    # warn if latency is too high, i.e., > 100ms
-                    if latency > 100 * TimeUnits.MSECOND:
-                        logger.warning(
-                            f"High latency: {latency / TimeUnits.MSECOND:.2f}ms while processing {topic} event."
-                        )
-                    writer.write_message(event, topic=topic, timestamp=publish_time)
-
-                    # Update progress bar with remaining time
-                    if stop_after:
-                        elapsed = time.time() - recording_start_time
-                        remaining = max(0, stop_after - elapsed)
-                        pbar.set_description(f"Recording (remaining: {remaining:.1f}s)")
-
-            except KeyboardInterrupt:
-                logger.info("Recording stopped by user.")
-            finally:
-                # Resources are cleaned up by context managers
-                logger.info(f"Output file saved to {output_file}")
+# ============================================================================
+# MAIN ENTRY POINT
+# ============================================================================
 
 
 def main():
+    """Main entry point for the OCAP recorder."""
     # Check for updates on startup (skip in CI environments)
     if not os.getenv("GITHUB_ACTIONS"):
         check_for_update("ocap", silent=False)
+
+    # Configure logger for use with tqdm
+    # See: https://github.com/Delgan/loguru/issues/135
+    logger.remove()
+    logger.add(lambda msg: tqdm.write(msg, end=""), filter={"owa.ocap": "DEBUG", "owa.env.gst": "INFO"}, colorize=True)
+
     typer.run(record)
 
 
 if __name__ == "__main__":
     main()
 
-    # TODO: add callback which captures window switch event and record only events when the target window is active
+# ============================================================================
+# TODO ITEMS
+# ============================================================================
+# TODO: add callback which captures window switch event and record only events when the target window is active

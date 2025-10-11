@@ -1,7 +1,10 @@
 import os
 import sys
+import time
+from typing import Optional
 
 import requests
+from loguru import logger
 from packaging.version import parse as parse_version
 from rich import print
 
@@ -81,3 +84,35 @@ def check_for_update(
         if not silent:
             print(f"[bold red]⚠ Error:[/bold red] Unable to check for updates. An unexpected error occurred: {e}")
     return False
+
+
+def countdown_delay(seconds: float):
+    """Display a countdown before starting recording."""
+    if seconds <= 0:
+        return
+
+    logger.info(f"⏱️ Recording will start in {seconds} seconds...")
+
+    # Show countdown for delays >= 3 seconds
+    if seconds >= 3:
+        for i in range(int(seconds), 0, -1):
+            logger.info(f"Starting in {i}...")
+            time.sleep(1)
+        # Handle fractional part
+        remaining = seconds - int(seconds)
+        if remaining > 0:
+            time.sleep(remaining)
+    else:
+        time.sleep(seconds)
+
+    logger.info("🎬 Recording started!")
+
+
+def parse_additional_properties(additional_args: Optional[str]) -> dict:
+    """Parse additional arguments string into a dictionary of properties."""
+    additional_properties = {}
+    if additional_args is not None:
+        for arg in additional_args.split(","):
+            key, value = arg.split("=")
+            additional_properties[key] = value
+    return additional_properties
