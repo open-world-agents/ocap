@@ -16,6 +16,13 @@ dependencies = [
     "typer>=0.19.2",
 ]
 
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "ruff>=0.14.0",
+    "virtual-uv>=0.1.4",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
