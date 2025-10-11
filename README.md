@@ -16,14 +16,6 @@ https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 
 ## Key Features
 
-- **Complete desktop recording**: Video, audio, keyboard/mouse events, window events
-- **High performance**: Hardware-accelerated with Windows APIs and [GStreamer](https://gstreamer.freedesktop.org/)
-- **Efficient encoding**: [H265/HEVC](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) for high quality and small file size
-- **Simple operation**: `ocap FILE_LOCATION` (stop with Ctrl+C)
-- **Clean architecture**: Core logic in a single 400-line [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py)
-- **Modern formats**: MKV with embedded timestamps, [**OWAMcap format**](https://open-world-agents.github.io/open-world-agents/data/technical-reference/format-guide) for events (built on [MCAP](https://mcap.dev/))
-
-
 | **Feature**                              | **ocap**                 | [OBS](https://obsproject.com/) | [wcap](https://github.com/mmozeiko/wcap) | [pillow](https://github.com/python-pillow/Pillow)/[mss](https://github.com/BoboTiG/python-mss) |
 |------------------------------------------|--------------------------|--------------------------------|------------------------------------------|----------------------------------|
 | Advanced data formats (OWAMcap) | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
@@ -34,6 +26,13 @@ https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 | Hardware-accelerated encoder             | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No                            |
 | Supports latest Windows APIs             | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No (legacy APIs only)         |
 | Optional mouse cursor capture            | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No                            |
+
+- **Complete desktop recording**: Video, audio, keyboard/mouse events, window events
+- **High performance**: Hardware-accelerated with Windows APIs and [GStreamer](https://gstreamer.freedesktop.org/)
+- **Efficient encoding**: [H265/HEVC](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) for high quality and small file size
+- **Simple operation**: `ocap FILE_LOCATION` (stop with Ctrl+C)
+- **Clean architecture**: Core logic in a single 400-line [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py)
+- **Modern formats**: MKV with embedded timestamps, [**OWAMcap format**](https://open-world-agents.github.io/open-world-agents/data/technical-reference/format-guide) for events (built on [MCAP](https://mcap.dev/))
 
 ## System Requirements
 
