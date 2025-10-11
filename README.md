@@ -147,9 +147,7 @@ flowchart TD
 - **How much disk space do recordings use?** ~100MB per minute for 1080p H265 recording.
 - **Will ocap slow down my computer?** Minimal impact with hardware acceleration. Designed for low overhead.
 - **What is OWAMcap format?** A specialized format that stores screen video (.mkv) + synchronized events (.mcap) for AI training. Contains keyboard, mouse, window events with nanosecond precision. [Learn more →](https://open-world-agents.github.io/open-world-agents/data/)
-- **How do I analyze recordings?** See the [Data Guide](https://open-world-agents.github.io/open-world-agents/data/) for analysis tools and examples.
-- **Can I customize what gets recorded?** Yes. Use flags like `--no-record-audio`, `--window-name "App"`, `--fps 30` to control recording behavior.
-- **How do I use recorded data for ML?** See the [Data Guide](https://open-world-agents.github.io/open-world-agents/data/) for processing pipelines and training examples.
+- **Can I save recording in other formats?** Yes sure, all the source code you must edit is single [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py). You can implement JSONL, Parquet, CSV, anything you want easily.
 
 ## When to Use ocap
 
