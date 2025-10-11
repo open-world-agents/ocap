@@ -23,6 +23,18 @@ https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 - **Clean architecture**: Core logic in a single 400-line [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py)
 - **Modern formats**: MKV with embedded timestamps, [**OWAMcap format**](https://open-world-agents.github.io/open-world-agents/data/technical-reference/format-guide) for events (built on [MCAP](https://mcap.dev/))
 
+
+| **Feature**                              | **ocap**                 | [OBS](https://obsproject.com/) | [wcap](https://github.com/mmozeiko/wcap) | [pillow](https://github.com/python-pillow/Pillow)/[mss](https://github.com/BoboTiG/python-mss) |
+|------------------------------------------|--------------------------|--------------------------------|------------------------------------------|----------------------------------|
+| Advanced data formats (OWAMcap) | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
+| Timestamp aligned logging                | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
+| Customizable event definition & Listener | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
+| Single python file                       | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
+| Audio + Window + Keyboard + Mouse        | ✅ Yes                   | ⚠️ Partial                    | ❌ No                                    | ❌ No                            |
+| Hardware-accelerated encoder             | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No                            |
+| Supports latest Windows APIs             | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No (legacy APIs only)         |
+| Optional mouse cursor capture            | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No                            |
+
 ## System Requirements
 
 Based on OBS Studio recommended specs + NVIDIA GPU requirements:
@@ -81,19 +93,6 @@ $ ocap FILENAME --no-record-audio     # Disable audio
 - `.mkv`  — Video/audio with embedded timestamps
 
 Your recording files will be ready immediately!
-
-## Feature Comparison
-
-| **Feature**                              | **ocap**                 | [OBS](https://obsproject.com/) | [wcap](https://github.com/mmozeiko/wcap) | [pillow](https://github.com/python-pillow/Pillow)/[mss](https://github.com/BoboTiG/python-mss) |
-|------------------------------------------|--------------------------|--------------------------------|------------------------------------------|----------------------------------|
-| Advanced data formats (OWAMcap) | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
-| Timestamp aligned logging                | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
-| Customizable event definition & Listener | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
-| Single python file                       | ✅ Yes                   | ❌ No                          | ❌ No                                    | ❌ No                            |
-| Audio + Window + Keyboard + Mouse        | ✅ Yes                   | ⚠️ Partial                    | ❌ No                                    | ❌ No                            |
-| Hardware-accelerated encoder             | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No                            |
-| Supports latest Windows APIs             | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No (legacy APIs only)         |
-| Optional mouse cursor capture            | ✅ Yes                   | ✅ Yes                         | ✅ Yes                                   | ❌ No                            |
 
 ## Technical Architecture
 
