@@ -4,11 +4,7 @@
 
 High-performance desktop recorder for Windows. Captures screen, audio, keyboard, mouse, and window events.
 
-<!-- ![ocap recording demo](../images/ocap-demo.gif) -->
-
-<video controls>
-    <source src=".github/assets/demo.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 
 ## What is ocap?
 
