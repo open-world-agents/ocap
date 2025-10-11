@@ -69,7 +69,7 @@ def check_for_update(
 [bold yellow]   An update is available for Open World Agents![/bold yellow]
 [bold red]******************************************************[/bold red]
 [bold]  Your version:[/bold] [red]{local_version}[/red]    [bold]Latest:[/bold] [green]{latest_version}[/green]
-  Get it here: [bold cyan]https://github.com/open-world-agents/open-world-agents/releases[/bold cyan]
+  Get it here: [bold cyan]https://github.com/open-world-agents/ocap/releases[/bold cyan]
 """)
             return False
         else:
