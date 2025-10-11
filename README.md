@@ -7,7 +7,7 @@ High-performance desktop recorder for Windows. Captures screen, audio, keyboard,
 <!-- ![ocap recording demo](../images/ocap-demo.gif) -->
 
 <video controls>
-    <source src="../examples/ocap.mkv" type="video/mp4">
+    <source src=".github/assets/demo.mkv" type="video/mp4">
 </video>
 
 ## What is ocap?
@@ -22,7 +22,7 @@ High-performance desktop recorder for Windows. Captures screen, audio, keyboard,
 - **High performance**: Hardware-accelerated with Windows APIs and [GStreamer](https://gstreamer.freedesktop.org/)
 - **Efficient encoding**: [H265/HEVC](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding) for high quality and small file size
 - **Simple operation**: `ocap FILE_LOCATION` (stop with Ctrl+C)
-- **Clean architecture**: Core logic in [single 320-line Python file](https://github.com/open-world-agents/open-world-agents/blob/main/projects/ocap/owa/ocap/recorder.py)
+- **Clean architecture**: Core logic in [single 400-line Python file](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py)
 - **Modern formats**: MKV with embedded timestamps, [MCAP format](https://mcap.dev/) for events
 
 ## System Requirements
@@ -45,7 +45,7 @@ Based on OBS Studio recommended specs + NVIDIA GPU requirements:
 ## Installation & Usage
 
 ### Option 1: Download Release
-1. Download `ocap.zip` from [releases](https://github.com/open-world-agents/open-world-agents/releases)
+1. Download `ocap.zip` from [releases](https://github.com/open-world-agents/ocap/releases)
 2. Unzip and run:
     - Double-click `run.bat` (opens terminal with virtual environment)
     - Or in CLI: `run.bat --help`
@@ -133,23 +133,23 @@ flowchart TD
     style M fill:#e8f5e8
 ```
 
-- **Easy to verify**: Extensive [OWA's Env](../env/index.md) design enables customizable [`recorder.py`](https://github.com/open-world-agents/open-world-agents/blob/main/projects/ocap/owa/ocap/recorder.py)
+- **Easy to verify**: Extensive [OWA's Env](../env/index.md) design enables customizable [`recorder.py`](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py)
 - **Native performance**: Direct Windows API integration ([DXGI](https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/d3d10-graphics-programming-guide-dxgi)/[WGC](https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture?view=winrt-26100), [WASAPI](https://learn.microsoft.com/en-us/windows/win32/coreaudio/wasapi))
 
 ## Troubleshooting
 
 - **Record terminates right after start?** Re-run the same command a few times. This is due to an intermittent GStreamer crash with an unknown cause.
 - **GStreamer error message box appears on first run?** This is a known issue where GStreamer may show error dialogs the first time you run `ocap`. These messages do not affect recording—simply close the dialogs and continue. `ocap` will function normally.
-- **Audio not recording?** By default, only audio from the target process is recorded. To change this, manually edit the [GStreamer pipeline](https://github.com/open-world-agents/open-world-agents/blob/fbbfdd8d3b5f9695cf295e860467776575fb1046/projects/owa-env-gst/owa/env/gst/pipeline_builder/factory.py#L71).
-- **Large file sizes?** Reduce file size by adjusting the [`gop-size`](https://gstreamer.freedesktop.org/documentation/nvcodec/nvd3d11h265enc.html?gi-language=c#nvd3d11h265enc:gop-size) parameter in the `nvd3d11h265enc` element. See [pipeline.py](https://github.com/open-world-agents/open-world-agents/blob/3b339897ed8eb15ac04b527c0ef1fb5baf52a2e2/projects/owa-env-gst/owa/env/gst/pipeline_builder/pipeline.py).
+- **Audio not recording?** By default, only audio from the target process is recorded. To change this, manually edit the [GStreamer pipeline](https://github.com/open-world-agents/open-world-agents/blob/main/projects/owa-env-gst/owa/env/gst/pipeline_builder/factory.py#L80).
+- **Large file sizes?** Reduce file size by adjusting the [`gop-size`](https://gstreamer.freedesktop.org/documentation/nvcodec/nvd3d11h265enc.html?gi-language=c#nvd3d11h265enc:gop-size) parameter in the `nvd3d11h265enc` element. See [pipeline.py](https://github.com/open-world-agents/open-world-agents/blob/main/projects/owa-env-gst/owa/env/gst/pipeline_builder/pipeline.py).
 - **Performance tips:** Close unnecessary applications before recording, use SSD storage for better write performance, and record to a different drive than your OS drive.
 
 ## FAQ
 
 - **How much disk space do recordings use?** ~100MB per minute for 1080p H265 recording.
-- **Can I customize recorded events?** Yes. Enable/disable audio, keyboard, mouse, and window events individually. Since [recorder.py](https://github.com/open-world-agents/open-world-agents/blob/main/projects/ocap/owa/ocap/recorder.py) is just a 320-line single python script, you may customize it easily.
+- **Can I customize recorded events?** Yes. Enable/disable audio, keyboard, mouse, and window events individually. Since [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py) is just a 320-line single python script, you may customize it easily.
 - **Will ocap slow down my computer?** Minimal impact with hardware acceleration. Designed for low overhead.
-- **What formats are supported?** MKV with H265/HEVC encoding for video and MCAP format for events for efficient storage and querying is supported, but you may customize it easily. (e.g. saving `jsonl` instead of `mcap` file takes minimal effort by editing [recorder.py](https://github.com/open-world-agents/open-world-agents/blob/main/projects/ocap/owa/ocap/recorder.py))
+- **What formats are supported?** MKV with H265/HEVC encoding for video and MCAP format for events for efficient storage and querying is supported, but you may customize it easily. (e.g. saving `jsonl` instead of `mcap` file takes minimal effort by editing [recorder.py](https://github.com/open-world-agents/ocap/blob/main/owa/ocap/recorder.py))
 
 ## When to Use ocap
 
