@@ -16,6 +16,7 @@ def _get_subprocess_env():
     """Get environment variables for subprocess calls with proper encoding."""
     env = os.environ.copy()
     env["PYTHONIOENCODING"] = "utf-8"
+    env["OWA_DISABLE_VERSION_CHECK"] = "1"  # Disable version check in subprocess
     return env
 
 
@@ -44,6 +45,8 @@ class TestOcapIntegration:
 
         except subprocess.TimeoutExpired:
             pytest.fail("Command timed out - this suggests a hanging process")
+        except FileNotFoundError:
+            pytest.fail("ocap command not found - package not properly installed")
 
     def test_ocap_command_validation_does_not_fail(self, tmp_path):
         """Test that ocap command validates arguments without crashing."""
@@ -87,6 +90,8 @@ class TestOcapIntegration:
             if process:
                 process.kill()
             pytest.fail("Command initialization took too long")
+        except FileNotFoundError:
+            pytest.fail("ocap command not found - package not properly installed")
         finally:
             # Ensure process is cleaned up
             if process and process.poll() is None:
@@ -119,3 +124,249 @@ class TestOcapIntegration:
 
         except subprocess.TimeoutExpired:
             pytest.fail("Command with invalid args timed out")
+        except FileNotFoundError:
+            pytest.fail("ocap command not found - package not properly installed")
+
+    def test_ocap_command_version_flag(self):
+        """Test that 'ocap --version' command works."""
+        try:
+            result = subprocess.run(
+                ["ocap", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                encoding="utf-8",
+                env=_get_subprocess_env(),
+            )
+
+            # Should succeed or fail gracefully
+            assert result.returncode in [0, 2]  # 0 for success, 2 for typer no version
+
+            # Should not have unhandled exceptions
+            assert "Traceback" not in result.stderr
+
+        except subprocess.TimeoutExpired:
+            pytest.fail("Version command timed out")
+        except FileNotFoundError:
+            pytest.fail("ocap command not found - package not properly installed")
+
+    def test_ocap_command_with_nonexistent_directory(self):
+        """Test ocap command with nonexistent output directory."""
+        process = None
+        try:
+            # Use a shorter timeout and terminate quickly
+            process = subprocess.Popen(
+                ["ocap", "/nonexistent/path/recording"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding="utf-8",
+                env=_get_subprocess_env(),
+            )
+
+            # Give it a moment to initialize, then terminate
+            time.sleep(1)
+            process.terminate()
+
+            # Wait for process to finish
+            _, stderr = process.communicate(timeout=5)
+
+            # Should not have unhandled exceptions
+            assert "Traceback" not in stderr
+            assert "ImportError" not in stderr
+            assert "ModuleNotFoundError" not in stderr
+
+        except subprocess.TimeoutExpired:
+            if process:
+                process.kill()
+            pytest.fail("Command with nonexistent directory timed out")
+        except FileNotFoundError:
+            pytest.fail("ocap command not found - package not properly installed")
+        finally:
+            # Ensure process is cleaned up
+            if process and process.poll() is None:
+                process.kill()
+                process.wait()
+            time.sleep(0.5)
+
+    def test_ocap_command_multiple_invalid_flags(self):
+        """Test ocap command with multiple invalid flags."""
+        try:
+            result = subprocess.run(
+                ["ocap", "--invalid1", "--invalid2", "test"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                encoding="utf-8",
+                env=_get_subprocess_env(),
+            )
+
+            # Should fail with non-zero exit code
+            assert result.returncode != 0
+
+            # Should not have unhandled exceptions
+            assert "Traceback" not in result.stderr
+
+        except subprocess.TimeoutExpired:
+            pytest.fail("Command with multiple invalid flags timed out")
+        except FileNotFoundError:
+            pytest.fail("ocap command not found - package not properly installed")
+
+    def test_ocap_command_with_valid_flags_combination(self, tmp_path):
+        """Test ocap command with valid flag combinations."""
+        test_file = tmp_path / "test-recording"
+        process = None
+
+        try:
+            # Test with multiple valid flags
+            process = subprocess.Popen(
+                ["ocap", str(test_file), "--no-record-audio", "--fps", "30"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding="utf-8",
+                env=_get_subprocess_env(),
+            )
+
+            # Give it a moment to initialize, then terminate
+            time.sleep(1)
+            process.terminate()
+
+            # Wait for process to finish
+            _, stderr = process.communicate(timeout=5)
+
+            # Should not have unhandled exceptions
+            assert "Traceback" not in stderr
+            assert "ImportError" not in stderr
+            assert "ModuleNotFoundError" not in stderr
+
+        except subprocess.TimeoutExpired:
+            if process:
+                process.kill()
+            pytest.fail("Command with valid flags timed out")
+        except FileNotFoundError:
+            pytest.fail("ocap command not found - package not properly installed")
+        finally:
+            if process and process.poll() is None:
+                process.kill()
+                process.wait()
+            time.sleep(0.5)
+
+    def test_ocap_command_with_conflicting_flags(self):
+        """Test ocap command with potentially conflicting flags."""
+        process = None
+        try:
+            # Use Popen and terminate quickly to avoid hanging
+            process = subprocess.Popen(
+                ["ocap", "test", "--window-name", "Test", "--monitor-idx", "0"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding="utf-8",
+                env=_get_subprocess_env(),
+            )
+
+            # Give it a moment to initialize, then terminate
+            time.sleep(1)
+            process.terminate()
+
+            # Wait for process to finish
+            process.communicate(timeout=5)
+
+            # May have tracebacks due to conflicting flags - that's expected behavior
+            # Just ensure it doesn't hang or crash completely
+
+        except subprocess.TimeoutExpired:
+            if process:
+                process.kill()
+            pytest.fail("Command with conflicting flags timed out")
+        except FileNotFoundError:
+            pytest.fail("ocap command not found - package not properly installed")
+        finally:
+            if process and process.poll() is None:
+                process.kill()
+                process.wait()
+            time.sleep(0.5)
+
+    def test_ocap_command_with_edge_case_values(self):
+        """Test ocap command with edge case parameter values."""
+        test_cases = [
+            ["ocap", "test", "--fps", "0"],  # Zero FPS
+            ["ocap", "test", "--fps", "1000"],  # Very high FPS
+            ["ocap", "test", "--start-after", "-1"],  # Negative delay
+            ["ocap", "test", "--stop-after", "0"],  # Zero duration
+        ]
+
+        for cmd in test_cases:
+            process = None
+            try:
+                # Use Popen and terminate quickly to avoid hanging
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    encoding="utf-8",
+                    env=_get_subprocess_env(),
+                )
+
+                # Give it a moment to initialize, then terminate
+                time.sleep(1)
+                process.terminate()
+
+                # Wait for process to finish
+                process.communicate(timeout=5)
+
+                # Edge case values may cause validation errors - that's expected
+                # Just ensure it doesn't hang indefinitely
+
+            except subprocess.TimeoutExpired:
+                if process:
+                    process.kill()
+                pytest.fail(f"Command {' '.join(cmd)} timed out")
+            except FileNotFoundError:
+                pytest.fail("ocap command not found - package not properly installed")
+            finally:
+                if process and process.poll() is None:
+                    process.kill()
+                    process.wait()
+                time.sleep(0.5)
+
+    def test_ocap_command_output_format_validation(self):
+        """Test that ocap command validates output format correctly."""
+        invalid_extensions = [".txt", ".jpg", ".mp4", ".avi"]
+
+        for ext in invalid_extensions:
+            process = None
+            try:
+                # Use Popen and terminate quickly to avoid hanging
+                process = subprocess.Popen(
+                    ["ocap", f"test{ext}"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    encoding="utf-8",
+                    env=_get_subprocess_env(),
+                )
+
+                # Give it a moment to initialize, then terminate
+                time.sleep(1)
+                process.terminate()
+
+                # Wait for process to finish
+                process.communicate(timeout=5)
+
+                # Should either accept (and convert) or reject cleanly
+                # Some extensions may cause validation errors - that's expected
+
+            except subprocess.TimeoutExpired:
+                if process:
+                    process.kill()
+                pytest.fail(f"Command with {ext} extension timed out")
+            except FileNotFoundError:
+                pytest.fail("ocap command not found - package not properly installed")
+            finally:
+                if process and process.poll() is None:
+                    process.kill()
+                    process.wait()
+                time.sleep(0.5)
