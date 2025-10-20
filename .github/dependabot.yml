@@ -3,7 +3,7 @@ version: 2
 multi-ecosystem-groups:
   python:
     schedule:
-      interval: "weekly"
+      interval: "daily"
 
 updates:
 # Python packages
@@ -20,4 +20,4 @@ updates:
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
-    interval: "weekly"
+    interval: "daily"
