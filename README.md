@@ -2,15 +2,21 @@
 
 [![ocap](https://img.shields.io/pypi/v/ocap?label=ocap)](https://pypi.org/project/ocap/) [![gstreamer-bundle](https://img.shields.io/conda/vn/open-world-agents/gstreamer-bundle?label=gstreamer-bundle)](https://anaconda.org/open-world-agents/gstreamer-bundle)
 
-High-performance desktop recorder for Windows. Captures screen, audio, keyboard, mouse, and window events.
+**High-performance desktop recorder for Windows.**
 
-https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
+It captures screen, audio, keyboard, mouse, and window events.
+
+For more details, see the D2E paper below.
+
+[D2E: Scaling Vision-Action Pretraining on Desktop Data for Transfer to Embodied AI](https://worv-ai.github.io/d2e/)
 
 ## What is ocap?
 
 **ocap** (Omnimodal CAPture) captures all essential desktop signals in synchronized format. Records screen video, audio, keyboard/mouse input, and window events. Built for the _open-world-agents_ project but works for any desktop recording needs.
 
 > **TL;DR**: Complete, high-performance desktop recording tool for Windows. Captures everything in one command.
+
+https://github.com/user-attachments/assets/4e94782c-02ae-4f64-bb52-b08be69d33da
 
 📊 **Working with recorded data?** See the [OWAMcap Format Guide](https://open-world-agents.github.io/open-world-agents/data/technical-reference/format-guide) for analysis, processing, and ML integration.
 
@@ -153,3 +159,16 @@ flowchart TD
 - **Workflow Documentation**: Record exact steps with precise timing
 - **Performance Testing**: Low-overhead recording during intensive tasks
 - **Research & Datasets**: Generate standardized OWAMcap data for the community ([HuggingFace Hub](https://huggingface.co/datasets?other=OWA))
+
+## Citation
+
+If you find this work useful, please cite our paper:
+
+```
+@article{choi2025d2e,
+  title={D2E: Scaling Vision-Action Pretraining on Desktop Data for Transfer to Embodied AI},
+  author={Choi, Suwhan and Jung, Jaeyoon and Seong, Haebin and Kim, Minchan and Kim, Minyeong and Cho, Yongjun and Kim, Yoonshik and Park, Yubeen and Yu, Youngjae and Lee, Yunsung},
+  journal={arXiv preprint arXiv:2510.05684},
+  year={2025}
+}
+```
