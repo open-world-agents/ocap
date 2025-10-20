@@ -1,14 +1,10 @@
-# ocap
+﻿# ocap
 
 [![ocap](https://img.shields.io/pypi/v/ocap?label=ocap)](https://pypi.org/project/ocap/) [![gstreamer-bundle](https://img.shields.io/conda/vn/open-world-agents/gstreamer-bundle?label=gstreamer-bundle)](https://anaconda.org/open-world-agents/gstreamer-bundle)
 
-**High-performance desktop recorder for Windows.**
+High-performance desktop recorder for Windows. Captures screen, audio, keyboard, mouse, and window events.
 
-It captures screen, audio, keyboard, mouse, and window events.
-
-For more details, see the D2E paper below.
-
-[D2E: Scaling Vision-Action Pretraining on Desktop Data for Transfer to Embodied AI](https://worv-ai.github.io/d2e/)
+This project was first introduced and developed for the D2E project. For more details, see [D2E: Scaling Vision-Action Pretraining on Desktop Data for Transfer to Embodied AI](https://worv-ai.github.io/d2e/) If you find this work useful, please cite our paper.
 
 ## What is ocap?
 
