@@ -338,7 +338,7 @@ wheels = [
 
 [[package]]
 name = "mediaref"
-version = "0.3.0"
+version = "0.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
@@ -348,9 +348,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0b/f9/4c9102047f4404feaf503adf24b5f12eb84e51262615959aebe8501df225/mediaref-0.3.0.tar.gz", hash = "sha256:28b089bdeb450632111b64b5518289f931a02a5b62e90dc644249df27ab069d5", size = 104583, upload-time = "2025-10-29T08:34:05.421Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0f/54/1a69e4566ca9807fd095a6e74c26330b3b1f7eaf7d854f043c356d7ede32/mediaref-0.3.1.tar.gz", hash = "sha256:8be5a81229b0599c22b33028c7cfd348f9356d8fffa55d967662d0648494d685", size = 104994, upload-time = "2025-10-29T14:09:00.02Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b1/6d/f60ea9cce677653f48a42dfbc6f013dceca0a5673afaa3793c43a05d0bff/mediaref-0.3.0-py3-none-any.whl", hash = "sha256:5f0a39f9fc8d6b18ec2729e8d3a1eaffd26a370eceabed65b5b0724058aa3682", size = 33521, upload-time = "2025-10-29T08:34:04.135Z" },
+    { url = "https://files.pythonhosted.org/packages/da/5a/a9c2fd459aa08c7749877bf4b771c6eecf66ca95cbb0a4d900b9210e7104/mediaref-0.3.1-py3-none-any.whl", hash = "sha256:7f7cf4e800aafc5954dd933c63eb7b219d86c8ca65d2869a411700351fe9c4c8", size = 33835, upload-time = "2025-10-29T14:08:58.947Z" },
 ]
 
 [[package]]
@@ -436,7 +436,7 @@ wheels = [
 
 [[package]]
 name = "ocap"
-version = "0.6.1.post1"
+version = "0.6.2"
 source = { editable = "." }
 dependencies = [
     { name = "loguru" },
@@ -461,7 +461,7 @@ dev = [
 requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "mcap-owa-support", specifier = "==0.6.1" },
-    { name = "mediaref", specifier = ">=0.3.0" },
+    { name = "mediaref", specifier = "~=0.3.1" },
     { name = "owa-core", specifier = "==0.6.1" },
     { name = "owa-env-desktop", specifier = "==0.6.1" },
     { name = "owa-env-gst", specifier = "==0.6.1" },
