@@ -7,13 +7,13 @@ from typing import Optional
 
 import typer
 from loguru import logger
+from mediaref import MediaRef
 from tqdm import tqdm
 from typing_extensions import Annotated
 
 from mcap_owa.highlevel import OWAMcapWriter
 from owa.core import CALLABLES, LISTENERS, get_plugin_discovery
 from owa.core.time import TimeUnits
-from owa.msgs.desktop.screen import MediaRef
 
 from .utils import check_for_update, countdown_delay, parse_additional_properties
 
