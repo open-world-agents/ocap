@@ -1,6 +1,6 @@
 [project]
 name = "ocap"
-version = "0.6.2"
+version = "0.6.2.post1"
 description = "High-performance, omnimodal desktop recorder for Windows"
 readme = "README.md"
 license = { text = "MIT" }
