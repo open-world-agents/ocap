@@ -195,19 +195,10 @@ wheels = [
 ]
 
 [[package]]
-name = "easydict"
-version = "1.13"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/24/9f/d18d6b5e19244788a6d09c14a8406376b4f4bfcc008e6d17a4f4c15362e8/easydict-1.13.tar.gz", hash = "sha256:b1135dedbc41c8010e2bc1f77ec9744c7faa42bce1a1c87416791449d6c87780", size = 6809, upload-time = "2024-03-04T12:04:41.251Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/05/ec/fa6963f1198172c2b75c9ab6ecefb3045991f92f75f5eb41b6621b198123/easydict-1.13-py3-none-any.whl", hash = "sha256:6b787daf4dcaf6377b4ad9403a5cee5a86adbc0ca9a5bcf5410e9902002aeac2", size = 6804, upload-time = "2024-03-04T12:04:39.508Z" },
-]
-
-[[package]]
 name = "evdev"
-version = "1.9.2"
+version = "1.9.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/63/fe/a17c106a1f4061ce83f04d14bcedcfb2c38c7793ea56bfb906a6fadae8cb/evdev-1.9.2.tar.gz", hash = "sha256:5d3278892ce1f92a74d6bf888cc8525d9f68af85dbe336c95d1c87fb8f423069", size = 33301, upload-time = "2025-05-01T19:53:47.69Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/99/4d24bb6db12fc170a5f209f4c9108054a2c84d289d1e7f743e979b202023/evdev-1.9.1.tar.gz", hash = "sha256:dc640a064cb1c9fe1f8b970dc2039945a2a275d7b7ee62284bf427238abe45ee", size = 33349, upload-time = "2025-02-22T11:07:44.248Z" }
 
 [[package]]
 name = "griffe"
@@ -311,10 +302,9 @@ wheels = [
 
 [[package]]
 name = "mcap-owa-support"
-version = "0.6.1"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "easydict" },
     { name = "mcap" },
     { name = "orjson" },
     { name = "owa-core" },
@@ -322,9 +312,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8d/b0/ff9861cb2f1cd803ace35fac7d0d8420ec6c996e34c57574a7bd8a641e36/mcap_owa_support-0.6.1.tar.gz", hash = "sha256:d7cf41aa641c63fb5f52e55a69533b3c1a9a5ac9cac765d469dcd92f7aa56e98", size = 66674, upload-time = "2025-10-02T05:40:33.499Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/71/57/1418d887da48bea4f9b67cbf00c2f88e37592b97f574c2c02576e9d2ded8/mcap_owa_support-0.6.2.tar.gz", hash = "sha256:f1765feb0ed5aac62272281a758021df08a0f6261728a33d423b2293788cc076", size = 72445, upload-time = "2025-10-29T14:22:50.901Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/8c/f17f07ebe41d7906c8d119f2630c8c77d6f9726a45e9695cb4e903d8c05d/mcap_owa_support-0.6.1-py3-none-any.whl", hash = "sha256:6fddf2b2a4bddb0ce6f46799e75be175baba292f68e8f3e460a3b66fa169d809", size = 12588, upload-time = "2025-10-02T05:40:31.892Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/65/99a19e7b4dfd7b1a531cdb1a3ec60d6977bcce829b3a9310a6c849277785/mcap_owa_support-0.6.2-py3-none-any.whl", hash = "sha256:d02628483f773d88e64cacfaa724234fc3cbef1d9f11a7a4c295df714e1846c2", size = 12541, upload-time = "2025-10-29T14:22:49.286Z" },
 ]
 
 [[package]]
@@ -460,12 +450,12 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
-    { name = "mcap-owa-support", specifier = "==0.6.1" },
+    { name = "mcap-owa-support", specifier = "==0.6.2" },
     { name = "mediaref", specifier = "~=0.3.1" },
-    { name = "owa-core", specifier = "==0.6.1" },
-    { name = "owa-env-desktop", specifier = "==0.6.1" },
-    { name = "owa-env-gst", specifier = "==0.6.1" },
-    { name = "owa-msgs", specifier = "==0.6.1" },
+    { name = "owa-core", specifier = "==0.6.2" },
+    { name = "owa-env-desktop", specifier = "==0.6.2" },
+    { name = "owa-env-gst", specifier = "==0.6.2" },
+    { name = "owa-msgs", specifier = "==0.6.2" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "typer", specifier = ">=0.19.2" },
 ]
@@ -564,7 +554,7 @@ wheels = [
 
 [[package]]
 name = "owa-core"
-version = "0.6.1"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "av" },
@@ -576,17 +566,18 @@ dependencies = [
     { name = "pyyaml" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cb/fe/610cfd2cae08e3986e41a3b2edfc68f293068918b46bd3c93e56dd3708f2/owa_core-0.6.1.tar.gz", hash = "sha256:4f131ce02df8bb3e9343b4297b7fd053a2bd1f7d34294a5b74fd423cf6db3032", size = 99394, upload-time = "2025-10-02T05:40:54.361Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/3a/9ba0084623a775a3edb2ea9e60df366c6214b2673c6086c9acd23997237e/owa_core-0.6.2.tar.gz", hash = "sha256:15a206fa1bcd24f53a0ea84f62319039c16e99840fc826342f39c9a71c391de0", size = 101483, upload-time = "2025-10-29T14:23:06.209Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/99/10/96cdb9a05e0753e3c9595963ee1ef4cb2ecf2054d78a261fc762a856e4db/owa_core-0.6.1-py3-none-any.whl", hash = "sha256:027104c891251f40e9aa2cfb712732860812beafbbf0f20d81eae1405794d120", size = 45794, upload-time = "2025-10-02T05:40:52.542Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/9c/2dbd3237742826f95ea2ee4cf31d4e456c487a29b4941bd98b234ab82f00/owa_core-0.6.2-py3-none-any.whl", hash = "sha256:4119f0360399ae7a2a3e96399c5607b4f208467bce584c56d72fe540b536d417", size = 45592, upload-time = "2025-10-29T14:23:04.771Z" },
 ]
 
 [[package]]
 name = "owa-env-desktop"
-version = "0.6.1"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bettercam", marker = "sys_platform == 'win32'" },
+    { name = "evdev", marker = "sys_platform == 'linux'" },
     { name = "opencv-python" },
     { name = "owa-core" },
     { name = "owa-msgs" },
@@ -596,17 +587,18 @@ dependencies = [
     { name = "pyobjc-framework-quartz", marker = "sys_platform == 'darwin'" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4f/bc/0675189851b682e064402fa812983b7eef65bdae317a0efc3985adc09244/owa_env_desktop-0.6.1.tar.gz", hash = "sha256:ec89cb10ce37b56e7eff5dd82611cc6ed5fe5d459a477deb274f5d6f2e93d046", size = 72115, upload-time = "2025-10-02T05:40:59.768Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8d/2b/ac08092e89ac66dcf7aeb2075c81217ba094dbada4705cf952cce65e8ec8/owa_env_desktop-0.6.2.tar.gz", hash = "sha256:68aa6c033bb9bed334dce3cd5be60b5934ea66722edce232475e723e0e8bded5", size = 78503, upload-time = "2025-10-29T14:23:10.966Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/68/06/c83b7c7d5c00caff6906659090718e242e3bc12938f723cb1070cc3ba152/owa_env_desktop-0.6.1-py3-none-any.whl", hash = "sha256:e30865252c652f8c03e62259e12343a1a5596f22b40160b251cfc92283675be3", size = 19755, upload-time = "2025-10-02T05:40:58.138Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/8d/fa783260b8e2fa9d4eafb1c58d0fb52cf673a5ccedc153f06e2994d6f8e1/owa_env_desktop-0.6.2-py3-none-any.whl", hash = "sha256:86aaa9122c8ecd7bff53b3ad6c414a54dcbea34b1123378559d9863d78e32dcf", size = 19771, upload-time = "2025-10-29T14:23:09.396Z" },
 ]
 
 [[package]]
 name = "owa-env-gst"
-version = "0.6.1"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "av" },
+    { name = "mediaref" },
     { name = "opencv-python" },
     { name = "owa-core" },
     { name = "owa-msgs" },
@@ -614,25 +606,26 @@ dependencies = [
     { name = "pygobject-stubs" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/43/90/22f2a8ae635bad2497d46cbe447bd4e30b0e8192f1a435a9760d6caa0eaa/owa_env_gst-0.6.1.tar.gz", hash = "sha256:014c27d178768c5305562e443ed2e7c43b83deff25c386980805a57d4c8c0588", size = 95633, upload-time = "2025-10-02T05:41:05.56Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e1/ca/a812e9fcf971fd723fa5c53003f4e006dffa4f2dfabd3d7226d77900f636/owa_env_gst-0.6.2.tar.gz", hash = "sha256:7ebbb5cb92284dffbd72c4b7ce7903e7e6475c488935ee01ac8645d5c31d711a", size = 101235, upload-time = "2025-10-29T14:23:22.312Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a4/09/cba3c137530c5216312c1e312346a8f0c0b92b81f2a4b4ebc2ae4792c04c/owa_env_gst-0.6.1-py3-none-any.whl", hash = "sha256:f4cc7430bb236c8620d934b2b0f8e0bbc8344019116d66ec736f522c3d4d0609", size = 26826, upload-time = "2025-10-02T05:41:03.593Z" },
+    { url = "https://files.pythonhosted.org/packages/6c/de/00913d5f860e1c41caac37182bf3b176bb0d74f8c6869dd5de015b3b4934/owa_env_gst-0.6.2-py3-none-any.whl", hash = "sha256:bdf02e2ad748585ad1d36be4ccd5585577cb17fa8983ba0975e06ef76bbbc371", size = 26865, upload-time = "2025-10-29T14:23:21.188Z" },
 ]
 
 [[package]]
 name = "owa-msgs"
-version = "0.6.1"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-types" },
+    { name = "mediaref" },
     { name = "numpy" },
     { name = "opencv-python" },
     { name = "owa-core" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/65/d1/e56e00ec95918717e24a267d705a66dad7cf32427aa4baf3023bcd9e0b06/owa_msgs-0.6.1.tar.gz", hash = "sha256:68818531d3c8746837740a401e01149e9149d705fb91793de1674c39fcd6e35d", size = 9315, upload-time = "2025-10-02T05:41:10.532Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/6c/79652bcba0fe34c7c66c2f8354df39e7ae0eb1599ca06693ee88a651ddf1/owa_msgs-0.6.2.tar.gz", hash = "sha256:6953eaacbf2249f9300c235bcba2986c7390410db6ff3537b77dbc6b8290b9bb", size = 58406, upload-time = "2025-10-29T14:23:28.893Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/13/61/5e3673117ae45379b6288a9609dbeb8dee544f2eb1d97588b3a316f5ec9b/owa_msgs-0.6.1-py3-none-any.whl", hash = "sha256:e30577ea4daac0c6ee40c898f38eea823c16531ba691227ec49ae0d7994433dc", size = 9448, upload-time = "2025-10-02T05:41:09.62Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/fb/e0bb64ac3bbd0d8b8017ce3ce216e01aae6805990f138b104d6d1e8ee2d1/owa_msgs-0.6.2-py3-none-any.whl", hash = "sha256:3e3e2b749bc14980ac6d5937637a50f2dcbacd39030725c00909ba146691c51c", size = 8781, upload-time = "2025-10-29T14:23:27.513Z" },
 ]
 
 [[package]]
