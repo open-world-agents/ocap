@@ -167,10 +167,10 @@ def version(
             console.print(f"   Dependencies: [dim]{deps_str}[/dim]")
 
         # Step 1: Update first-party dependencies
-        # for dep in first_party_deps:
-        #     with console.status(f"Updating {dep} dependency..."):
-        #         run_command(["vuv", "add", f"{dep}=={value}", "--frozen"], cwd=package_dir)
-        #     console.print(f"   [green]✓[/green] Updated {dep} → {value}")
+        for dep in first_party_deps:
+            with console.status(f"Updating {dep} dependency..."):
+                run_command(["vuv", "add", f"{dep}=={value}", "--frozen"], cwd=package_dir)
+            console.print(f"   [green]✓[/green] Updated {dep} → {value}")
 
         # Step 2: Update package version
         with console.status(f"Updating {package_name} version..."):
