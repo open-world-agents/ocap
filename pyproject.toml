@@ -6,16 +6,16 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 dependencies = [
-    "loguru>=0.7.3",
+    "loguru",
     "mcap-owa-support==0.6.2",
-    "mediaref~=0.3.1",
-    "owa-cli==0.6.2",          # not needed for ocap but for convenience on CLI. Installs two package additionally: owa-cli, plotext
+    "mediaref",
+    "owa-cli==0.6.2",  # not needed for ocap but for convenience on CLI. Installs two package additionally: owa-cli, plotext
     "owa-core==0.6.2",
     "owa-env-desktop==0.6.2",
     "owa-env-gst==0.6.2",
     "owa-msgs==0.6.2",
-    "tqdm>=4.67.1",
-    "typer>=0.19.2",
+    "tqdm",
+    "typer>=0.20.0",
 ]
 
 [dependency-groups]
