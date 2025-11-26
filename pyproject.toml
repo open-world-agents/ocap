@@ -1,19 +1,19 @@
 [project]
 name = "ocap"
-version = "0.6.3"
+version = "0.6.4"
 description = "High-performance, omnimodal desktop recorder for Windows"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 dependencies = [
     "loguru",
-    "mcap-owa-support==0.6.3",
+    "mcap-owa-support==0.6.4",
     "mediaref",
-    "owa-cli==0.6.3",  # not needed for ocap but for convenience on CLI. Installs two package additionally: owa-cli, plotext
-    "owa-core==0.6.3",
-    "owa-env-desktop==0.6.3",
-    "owa-env-gst==0.6.3",
-    "owa-msgs==0.6.3",
+    "owa-cli==0.6.4",  # not needed for ocap but for convenience on CLI. Installs two package additionally: owa-cli, plotext
+    "owa-core==0.6.4",
+    "owa-env-desktop==0.6.4",
+    "owa-env-gst==0.6.4",
+    "owa-msgs==0.6.4",
     "tqdm",
     "typer>=0.20.0",
 ]
