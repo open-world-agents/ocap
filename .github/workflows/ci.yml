@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: astral-sh/ruff-action@v3
+      # v4 dropped major-tag publishing; pin to a full version. dependabot bumps this.
+      - uses: astral-sh/ruff-action@v4.0.0
       - run: ruff check --fix
       - run: ruff format --check --diff
 
@@ -43,12 +44,13 @@ jobs:
           environment-file: 'environment.yml'
 
       - name: Setup uv
-        uses: ./.github/actions/setup-uv
-        with:
-          show-uv-cache-info: 'true'
+        uses: astral-sh/setup-uv@v8.1.0
+
+      - name: Bridge conda env to uv (so --active picks up $CONDA_PREFIX)
+        run: echo "VIRTUAL_ENV=$CONDA_PREFIX" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: vuv install --dev
+        run: uv sync --active --inexact --dev
 
       - name: Run pytest
         run: pytest
