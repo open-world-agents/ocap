@@ -25,6 +25,10 @@ dev = [
     "virtual-uv>=0.1.4",
 ]
 
+[tool.uv]
+# https://github.com/pygobject/pygobject-stubs/issues/273
+override-dependencies = ["pygobject; sys_platform == 'never'"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
