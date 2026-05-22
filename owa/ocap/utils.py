@@ -54,36 +54,45 @@ def check_for_update(
 
     Returns:
         bool: True if the local version is up to date, False otherwise.
+
+    Note:
+        Best-effort and non-essential: never raises, so a failed check
+        cannot crash the caller.
     """
     # Skip version check if disabled via environment variable (e.g., during testing)
     if os.environ.get("OWA_DISABLE_VERSION_CHECK"):
         return True
 
+    is_up_to_date = False
+    message = None
     try:
         local_version = get_local_version(package_name)
         latest_version = get_latest_release(url)
-        if parse_version(latest_version) > parse_version(local_version):
-            if not silent:
-                print(f"""
+        is_up_to_date = parse_version(latest_version) <= parse_version(local_version)
+        if not is_up_to_date:
+            message = f"""
 [bold red]******************************************************[/bold red]
 [bold yellow]   An update is available for Open World Agents![/bold yellow]
 [bold red]******************************************************[/bold red]
 [bold]  Your version:[/bold] [red]{local_version}[/red]    [bold]Latest:[/bold] [green]{latest_version}[/green]
   Get it here: [bold cyan]https://github.com/open-world-agents/ocap/releases[/bold cyan]
-""")
-            return False
-        else:
-            return True
+"""
     except requests.Timeout as e:
-        if not silent:
-            print(f"[bold red]⚠ Error:[/bold red] Unable to check for updates. Timeout occurred: {e}")
+        message = f"[bold red]Error:[/bold red] Unable to check for updates. Timeout occurred: {e}"
     except requests.RequestException as e:
-        if not silent:
-            print(f"[bold red]⚠ Error:[/bold red] Unable to check for updates. Request failed: {e}")
+        message = f"[bold red]Error:[/bold red] Unable to check for updates. Request failed: {e}"
     except Exception as e:
-        if not silent:
-            print(f"[bold red]⚠ Error:[/bold red] Unable to check for updates. An unexpected error occurred: {e}")
-    return False
+        message = f"[bold red]Error:[/bold red] Unable to check for updates. An unexpected error occurred: {e}"
+
+    if message is not None and not silent:
+        # rich can raise UnicodeEncodeError on a non-UTF-8 Windows console;
+        # a failed update check must not crash ocap.
+        try:
+            print(message)
+        except Exception:
+            pass
+
+    return is_up_to_date
 
 
 def countdown_delay(seconds: float):

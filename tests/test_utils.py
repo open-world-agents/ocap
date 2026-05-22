@@ -1,6 +1,79 @@
+import os
 from unittest.mock import patch
 
-from owa.ocap.utils import countdown_delay, parse_additional_properties
+import requests
+
+from owa.ocap.utils import check_for_update, countdown_delay, parse_additional_properties
+
+
+class TestCheckForUpdate:
+    """Test the best-effort update check, which must never crash the caller."""
+
+    def test_request_failure_is_handled(self):
+        """A network failure is reported and returns False instead of raising."""
+        with (
+            patch.dict(os.environ, {"OWA_DISABLE_VERSION_CHECK": ""}, clear=False),
+            patch("owa.ocap.utils.get_latest_release", side_effect=requests.RequestException("boom")),
+            patch("owa.ocap.utils.print") as mock_print,
+        ):
+            result = check_for_update("ocap")
+
+        assert result is False
+        mock_print.assert_called_once()
+
+    def test_print_failure_does_not_propagate(self):
+        """A console encoding error while printing must not crash the caller.
+
+        Regression test: rich raised UnicodeEncodeError on a cp949 Windows
+        console, aborting ocap on startup.
+        """
+        with (
+            patch.dict(os.environ, {"OWA_DISABLE_VERSION_CHECK": ""}, clear=False),
+            patch("owa.ocap.utils.get_latest_release", side_effect=requests.RequestException("boom")),
+            patch("owa.ocap.utils.print", side_effect=UnicodeEncodeError("cp949", "", 0, 1, "boom")),
+        ):
+            # Must not raise.
+            result = check_for_update("ocap")
+
+        assert result is False
+
+    def test_silent_suppresses_output(self):
+        """silent=True suppresses all output even on failure."""
+        with (
+            patch.dict(os.environ, {"OWA_DISABLE_VERSION_CHECK": ""}, clear=False),
+            patch("owa.ocap.utils.get_latest_release", side_effect=requests.RequestException("boom")),
+            patch("owa.ocap.utils.print") as mock_print,
+        ):
+            result = check_for_update("ocap", silent=True)
+
+        assert result is False
+        mock_print.assert_not_called()
+
+    def test_up_to_date_returns_true(self):
+        """When the local version matches the latest, returns True without output."""
+        with (
+            patch.dict(os.environ, {"OWA_DISABLE_VERSION_CHECK": ""}, clear=False),
+            patch("owa.ocap.utils.get_local_version", return_value="1.2.3"),
+            patch("owa.ocap.utils.get_latest_release", return_value="1.2.3"),
+            patch("owa.ocap.utils.print") as mock_print,
+        ):
+            result = check_for_update("ocap")
+
+        assert result is True
+        mock_print.assert_not_called()
+
+    def test_update_available_returns_false(self):
+        """When a newer version exists, prints a banner and returns False."""
+        with (
+            patch.dict(os.environ, {"OWA_DISABLE_VERSION_CHECK": ""}, clear=False),
+            patch("owa.ocap.utils.get_local_version", return_value="1.0.0"),
+            patch("owa.ocap.utils.get_latest_release", return_value="2.0.0"),
+            patch("owa.ocap.utils.print") as mock_print,
+        ):
+            result = check_for_update("ocap")
+
+        assert result is False
+        mock_print.assert_called_once()
 
 
 class TestCountdownDelay:
