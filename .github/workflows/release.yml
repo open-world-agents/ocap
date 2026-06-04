@@ -32,7 +32,7 @@ jobs:
           environment-file: 'environment.yml'
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v8.1.0
+        uses: astral-sh/setup-uv@v8.2.0
 
       - name: Install conda-pack
         run: uv pip install conda-pack
