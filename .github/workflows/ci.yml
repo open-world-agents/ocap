@@ -43,7 +43,7 @@ jobs:
           environment-file: 'environment.yml'
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v8.3.2
+        uses: astral-sh/setup-uv@v9.0.0
 
       - name: Bridge conda env to uv (so --active picks up $CONDA_PREFIX)
         run: echo "VIRTUAL_ENV=$CONDA_PREFIX" >> $GITHUB_ENV
